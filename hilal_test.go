@@ -1,8 +1,7 @@
-package bahaya
+package hilal
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
