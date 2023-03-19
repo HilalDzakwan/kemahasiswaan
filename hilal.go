@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -26,6 +27,7 @@ func InsertOneDoc(db string, collection string, doc interface{}) (insertedID int
 	}
 	return insertResult.InsertedID
 }
+
 // insert data ke koleksi Mahasiswa
 func insertMahasiswa(db *mongo.Database, mhs Mahasiswa) (insertedID interface{}, err error) {
 	result, err := db.Collection("Mahasiswa").InsertOne(context.Background(), mhs)
@@ -69,4 +71,28 @@ func insertNPM(db *mongo.Database, npm NPM) (insertedID interface{}, err error) 
 		return nil, fmt.Errorf("failed to insert NPM: %v", err)
 	}
 	return result.InsertedID, nil
+}
+
+func GetDataMahasiswa(npm string) (data Mahasiswa) {
+	mahasiswa := MongoConnect("kemahasiswaan").Collection("mahasiswa")
+	filter := bson.M{"npm": npm}
+	err := mahasiswa.FindOne(context.TODO(), filter).Decode(&data)
+	if err != nil {
+		fmt.Printf("GetDataMahasiswa: %v\n", err)
+	}
+	return data
+}
+
+func GetUserDataJurusan(npm string) (data []Jurusan) {
+	jurusan := MongoConnect("kemahasiswaan").Collection("jurusan")
+	filter := bson.M{"npm": npm}
+	cursor, err := jurusan.Find(context.TODO(), filter)
+	if err != nil {
+		fmt.Println("GetUserData :", err)
+	}
+	err = cursor.All(context.TODO(), &data)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return
 }
