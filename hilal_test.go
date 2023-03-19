@@ -1,87 +1,54 @@
-package hilal
+package bahaya
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func TestInsertMahasiswa(t *testing.T) {
-	db := MongoConnect("kemahasiswaan")
-	defer db.Drop(context.Background())
+func TestInsertOneDoc(t *testing.T) {
+	// buat koneksi ke MongoDB
+	dbname := "testdb"
+	db := MongoConnect(dbname)
 
-	data := Mahasiswa{
-		Name:         "John Doe",
-		NPM:          "12345",
-		Alamat:       "Jalan Raya",
-		EmailAddress: "johndoe@example.com",
+	// persiapkan data untuk diinsert
+	doc := map[string]interface{}{
+		"_id":           primitive.NewObjectID(),
+		"name":          "John Doe",
+		"email_address": "johndoe@example.com",
 	}
 
-	result := InsertMahasiswa("kemahasiswaan", data)
+	// insert data ke koleksi
+	collection := "testcollection"
+	insertedID := InsertOneDoc(dbname, collection, doc)
 
-	assert.NotNil(t, result, "insertion should succeed")
-}
-
-func TestInsertJurusan(t *testing.T) {
-	db := MongoConnect("kemahasiswaan")
-	defer db.Drop(context.Background())
-
-	data := Jurusan{
-		Name:    "Jurusan A",
-		NPM:     "12345",
-		Jurusan: "Teknik Informatika",
+	// verifikasi hasil insert
+	result := db.Collection(collection).FindOne(context.Background(), map[string]interface{}{"_id": insertedID})
+	if result.Err() != nil {
+		t.Errorf("failed to find inserted document: %v", result.Err())
+	}
+	var insertedDoc map[string]interface{}
+	err := result.Decode(&insertedDoc)
+	if err != nil {
+		t.Errorf("failed to decode inserted document: %v", err)
+	}
+	for k, v := range doc {
+		if insertedDoc[k] != v {
+			t.Errorf("expected %v, got %v", v, insertedDoc[k])
+		}
 	}
 
-	result := InsertJurusan("kemahasiswaan", data)
-
-	assert.NotNil(t, result, "insertion should succeed")
-}
-
-func TestInsertNilai(t *testing.T) {
-	db := MongoConnect("kemahasiswaan")
-	defer db.Drop(context.Background())
-
-	data := Nilai{
-		Name:       "John Doe",
-		NPM:        "12345",
-		Sejarah:    90,
-		Matematika: 80,
-		Inggris:    85,
-		Pkn:        75,
+	// hapus data yang sudah diinsert
+	_, err = db.Collection(collection).DeleteOne(context.Background(), map[string]interface{}{"_id": insertedID})
+	if err != nil {
+		t.Errorf("failed to delete inserted document: %v", err)
 	}
 
-	result := InsertNilai("kemahasiswaan", data)
-
-	assert.NotNil(t, result, "insertion should succeed")
-}
-
-func TestInsertAlamat(t *testing.T) {
-	db := MongoConnect("kemahasiswaan")
-	defer db.Drop(context.Background())
-
-	data := Alamat{
-		Name:         "John Doe",
-		NPM:          "12345",
-		EmailAddress: "johndoe@example.com",
+	// tutup koneksi ke MongoDB
+	err = db.Client().Disconnect(context.Background())
+	if err != nil {
+		t.Errorf("failed to disconnect from MongoDB: %v", err)
 	}
-
-	result := InsertAlamat("kemahasiswaan", data)
-
-	assert.NotNil(t, result, "insertion should succeed")
-}
-
-func TestInsertNPM(t *testing.T) {
-	db := MongoConnect("kemahasiswaan")
-	defer db.Drop(context.Background())
-
-	data := NPM{
-		Name:         "John Doe",
-		EmailAddress: "johndoe@example.com",
-		Alamat:       "Jalan Raya",
-	}
-
-	result := InsertNPM("kemahasiswaan", data)
-
-	assert.NotNil(t, result, "insertion should succeed")
 }

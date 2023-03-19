@@ -26,42 +26,47 @@ func InsertOneDoc(db string, collection string, doc interface{}) (insertedID int
 	}
 	return insertResult.InsertedID
 }
-func InsertMahasiswa(db string, data Mahasiswa) (insertedID interface{}) {
-	insertResult, err := MongoConnect(db).Collection("mahasiswa").InsertOne(context.TODO(), data)
+// insert data ke koleksi Mahasiswa
+func insertMahasiswa(db *mongo.Database, mhs Mahasiswa) (insertedID interface{}, err error) {
+	result, err := db.Collection("Mahasiswa").InsertOne(context.Background(), mhs)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to insert Mahasiswa: %v", err)
 	}
-	return insertResult.InsertedID
+	return result.InsertedID, nil
 }
 
-func InsertJurusan(db string, data Jurusan) (insertedID interface{}) {
-	insertResult, err := MongoConnect(db).Collection("jurusan").InsertOne(context.TODO(), data)
+// insert data ke koleksi Jurusan
+func insertJurusan(db *mongo.Database, jur Jurusan) (insertedID interface{}, err error) {
+	result, err := db.Collection("Jurusan").InsertOne(context.Background(), jur)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to insert Jurusan: %v", err)
 	}
-	return insertResult.InsertedID
+	return result.InsertedID, nil
 }
 
-func InsertNilai(db string, data Nilai) (insertedID interface{}) {
-	insertResult, err := MongoConnect(db).Collection("nilai").InsertOne(context.TODO(), data)
+// insert data ke koleksi Nilai
+func insertNilai(db *mongo.Database, n Nilai) (insertedID interface{}, err error) {
+	result, err := db.Collection("Nilai").InsertOne(context.Background(), n)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to insert Nilai: %v", err)
 	}
-	return insertResult.InsertedID
+	return result.InsertedID, nil
 }
 
-func InsertAlamat(db string, data Alamat) (insertedID interface{}) {
-	insertResult, err := MongoConnect(db).Collection("alamat").InsertOne(context.TODO(), data)
+// insert data ke koleksi Alamat
+func insertAlamat(db *mongo.Database, alamat Alamat) (insertedID interface{}, err error) {
+	result, err := db.Collection("Alamat").InsertOne(context.Background(), alamat)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to insert Alamat: %v", err)
 	}
-	return insertResult.InsertedID
+	return result.InsertedID, nil
 }
 
-func InsertNPM(db string, data NPM) (insertedID interface{}) {
-	insertResult, err := MongoConnect(db).Collection("npm").InsertOne(context.TODO(), data)
+// insert data ke koleksi NPM
+func insertNPM(db *mongo.Database, npm NPM) (insertedID interface{}, err error) {
+	result, err := db.Collection("NPM").InsertOne(context.Background(), npm)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to insert NPM: %v", err)
 	}
-	return insertResult.InsertedID
+	return result.InsertedID, nil
 }
